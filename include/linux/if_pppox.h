@@ -26,10 +26,10 @@
 #include <linux/if.h>
 #include <linux/netdevice.h>
 #include <linux/ppp_channel.h>
-#endif /* __KERNEL__ */
-#include <linux/if_pppol2tp.h>
 #include <linux/if_pppolac.h>
 #include <linux/if_pppopns.h>
+#endif /* __KERNEL__ */
+#include <linux/if_pppol2tp.h>
 
 /* For user-space programs to pick up these definitions
  * which they wouldn't get otherwise without defining __KERNEL__
