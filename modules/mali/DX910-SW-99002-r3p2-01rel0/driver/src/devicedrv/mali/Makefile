@@ -79,7 +79,7 @@ include $(KDIR)/.config
 
 ifeq ($(ARCH), arm)
 # when compiling for ARM we're cross compiling
-export CROSS_COMPILE ?= $(call check_cc2, arm-linux-gnueabi-gcc, arm-linux-gnueabi-, arm-none-linux-gnueabi-)
+# export CROSS_COMPILE ?= $(call check_cc2, arm-linux-gnueabi-gcc, arm-linux-gnueabi-, arm-none-linux-gnueabi-)
 endif
 
 # report detected/selected settings
