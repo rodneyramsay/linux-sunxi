@@ -32,6 +32,7 @@ MODULE_PARM_DESC(nologo, "Disables startup logo");
 const struct linux_logo * __init_refok fb_find_logo(int depth)
 {
 	const struct linux_logo *logo = NULL;
+        extern const struct linux_logo logo_cubieboard_clut224;
 
 	if (nologo)
 		return NULL;
@@ -99,6 +100,10 @@ const struct linux_logo * __init_refok fb_find_logo(int depth)
 #ifdef CONFIG_LOGO_M32R_CLUT224
 		/* M32R Linux logo */
 		logo = &logo_m32r_clut224;
+#endif
+#ifdef CONFIG_LOGO_CUBIEBOARD_CLUT224
+		/* Cubieboard Linux logo */
+		logo = &logo_cubieboard_clut224;
 #endif
 	}
 	return logo;
