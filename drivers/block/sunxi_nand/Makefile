@@ -9,9 +9,11 @@
 #
 #################################################################################
 PWD=$(shell pwd)
-obj-m+=nand.o 
-nand-objs := nand_interface.o  \
-             nfd/nand_blk.o nfd/nand_osal_for_linux.o libnand.a
+
+obj-y+=nand_interface.o
+obj-y+=nfd/nand_blk.o
+obj-y+=nfd/nand_osal_for_linux.o
+obj-y+=libnand
 
 install: build
 	cp nand.ko $(LICHEE_MOD_DIR)/

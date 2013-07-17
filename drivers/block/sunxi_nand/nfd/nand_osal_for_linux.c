@@ -84,7 +84,7 @@ dma_hdl_t dma_hdle = (dma_hdl_t)NULL;
 int seq=0;
 int nand_handle=0;
 dma_cb_t done_cb;
-dma_config_t dma_config;
+static dma_config_t dma_config;
 
 static int nanddma_completed_flag = 1;
 

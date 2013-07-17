@@ -42,7 +42,7 @@
 #include <linux/clk.h>
 #include <linux/mutex.h>
 #include <mach/clock.h>
-#include <mach/dma.h>
+// #include <mach/dma.h>
 #include <linux/wait.h>
 #include <linux/sched.h>
 #include <asm/cacheflush.h>
@@ -53,7 +53,7 @@
 
 
 extern __u32 nand_current_dev_num;
-extern int part_secur[MAX_PART_COUNT];
+extern int part_secur[MAX_PART_COUNT + 1];
 extern __u32 RetryCount[8];
 
 struct nand_disk disk_array[MAX_PART_COUNT+1];
@@ -795,11 +795,11 @@ static int nand_add_dev(struct nand_blk_ops *nandr, struct nand_disk *part)
 	gd->first_minor = (dev->devnum) << nandr->minorbits;
 	gd->fops = &nand_blktrans_ops;
 
-	if (dev->devnum)
-		snprintf(gd->disk_name, sizeof(gd->disk_name),
-		 "%s%c", nandr->name, (nandr->minorbits?'a':'0') + dev->devnum - 1);
-	else
-		snprintf(gd->disk_name, sizeof(gd->disk_name), "%s", nandr->name);
+ 	if (!dev->devnum)
+ 		snprintf(gd->disk_name, sizeof(gd->disk_name), "%s", nandr->name);
+ 	else
+ 		snprintf(gd->disk_name, sizeof(gd->disk_name),
+ 		 	"%s%c", nandr->name, '0' + dev->devnum);
 	//snprintf(gd->devfs_name, sizeof(gd->devfs_name),
 	//	 "%s/%c", nandr->name, (nandr->minorbits?'a':'0') + dev->devnum);
 
@@ -932,21 +932,14 @@ int nand_blk_register(struct nand_blk_ops *nandr)
 
 	//devfs_mk_dir(nandr->name);
 	INIT_LIST_HEAD(&nandr->devs);
-
-	disk_array[0].offset = 0;
-	disk_array[0].size = NAND_GetDiskSize();
-
-	dbg_inf("nand size %lu\n", disk_array[0].size);
-
-	part_cnt = mbr2disks(disk_array + 1);
-	if (disk_array[0].size != disk_array[part_cnt].size + disk_array[part_cnt].offset)
-		dbg_err("nand size reported %lu by nandlib but last partition is %lu at %lu offset giving %lu disk size\n",
-				disk_array[0].size, disk_array[part_cnt].size, disk_array[part_cnt].offset,
-				disk_array[part_cnt].size + disk_array[part_cnt].offset);
-
-	part_cnt ++;
-
-	for(i = 0 ; i < part_cnt ; i++){
+ 
+ 	disk_array[0].size = NAND_GetDiskSize();
+ 	disk_array[0].offset = 0;
+ 	disk_array[0].type = 0;
+ 
+ 	part_cnt = mbr2disks(disk_array+1);
+ 
+ 	for(i = 0 ; i < part_cnt + 1 ; i++){
 		nandr->add_dev(nandr,&(disk_array[i]));
 	}
 
