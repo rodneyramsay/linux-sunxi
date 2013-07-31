@@ -61,8 +61,13 @@ obj-$(CONFIG_IR_SUN3I)			+= sun3i-ir.o
 endif
 
 ifdef CONFIG_ARCH_SUN4I
-obj-$(CONFIG_IR_SUN4I)		        += sun4i-ir.o
+obj-$(CONFIG_IR_SUNXI)		        += sunxi-ir.o
 endif
+
+ifdef CONFIG_ARCH_SUN7I
+obj-$(CONFIG_IR_SUNXI)                  += sunxi-ir.o
+endif
+
 
 ifdef CONFIG_ARCH_SUN5I
 obj-$(CONFIG_IR_SUN5I)                  += sun5i-ir.o
