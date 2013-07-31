@@ -567,6 +567,19 @@ config SUN3I_NANDFLASH_TEST
 	---help---
 	  Nand flash test driver for SUN3I
 
+config SUN7I_LIBNAND
+       depends on BLOCK && ARCH_SUN7I
+       tristate "SUN7I Nand Library"
+        ---help---
+          Library for SUN7I Nand
+
+config SUN7I_NAND
+       depends on BLOCK && ARCH_SUN7I && SUN7I_LIBNAND
+       tristate "SUN7I Nandflash Driver"
+        ---help---
+          Nand flash driver for SUN7I
+
+
 config SUNXI_NAND
 	depends on BLOCK
 	depends on ARCH_SUN4I || ARCH_SUN5I

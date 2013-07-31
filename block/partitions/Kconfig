@@ -250,8 +250,8 @@ config SYSV68_PARTITION
 	  sysv68).
 	  Otherwise, say N.
 
-config SUNXI_NAND_PARTITION
-	bool "sunxi nand partition table support" if PARTITION_ADVANCED
+config SUNXI_NAND411_PARTITION
+	bool "sunxi nand411 partition table support" if PARTITION_ADVANCED
 	default y if VME
 	select CRC32
 	---help---
@@ -259,4 +259,16 @@ config SUNXI_NAND_PARTITION
 	  directly to SoC.
 
 	  If unsure say N.
+
+
+config SUNXI_NAND311_PARTITION
+	bool "sunxi nand311 partition table support" if PARTITION_ADVANCED
+	default y if VME
+	select CRC32
+	---help---
+	  This partition scheme is used on Allwinner sunxi nand chips connected
+	  directly to SoC.
+
+	  If unsure say N.
+
 
