@@ -13,6 +13,16 @@
 
 /* Configuration for the EB platform with ZBT memory enabled */
 
+/* FIXME: to include <plat/irqs.h> */
+#define SW_INT_START 32
+#define SW_INT_IRQNO_GPU_GP             (69 + SW_INT_START)
+#define SW_INT_IRQNO_GPU_GPMMU          (70 + SW_INT_START)
+#define SW_INT_IRQNO_GPU_PP0            (71 + SW_INT_START)
+#define SW_INT_IRQNO_GPU_PPMMU0         (72 + SW_INT_START)
+#define SW_INT_IRQNO_GPU_PMU            (73 + SW_INT_START)
+#define SW_INT_IRQNO_GPU_PP1            (74 + SW_INT_START)
+#define SW_INT_IRQNO_GPU_PPMMU1         (75 + SW_INT_START)
+
 #define SW_FB_MEM_BASE (0x40000000 - SZ_512M - SZ_64M - SZ_32M)
 #define SW_FB_MEM_SIZE SZ_32M
 #define SW_GPU_MEM_BASE (0x40000000 - SZ_512M - SZ_64M)
