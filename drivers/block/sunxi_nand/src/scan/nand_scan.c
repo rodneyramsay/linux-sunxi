@@ -35,6 +35,7 @@ extern struct __NandPhyInfoPar_t StNandTbl;
 extern struct __NandPhyInfoPar_t DefaultNandTbl;
 extern struct __NandPhyInfoPar_t SpansionNandTbl;
 extern struct __NandPhyInfoPar_t PowerNandTbl;
+extern struct __NandPhyInfoPar_t SandiskNandTbl;
 
 __s32 NAND_Detect(boot_nand_para_t *nand_connect);
 
@@ -103,6 +104,11 @@ __s32 _SearchNandArchi(__u8 *pNandID, struct __NandPhyInfoPar_t *pNandArchInfo)
         case POWER_NAND:
             tmpNandManu = &PowerNandTbl;
             break;
+
+	   //manufacture is sandisk, search parameter from sandisk nand table
+        case SANDISK:
+            tmpNandManu = &SandiskNandTbl;
+            break;   
 
         //manufacture is unknown, search parameter from default nand table
         default:
@@ -394,6 +400,8 @@ __s32  SCN_AnalyzeNandSystem(void)
 		nand_info.ddr_type = DDR_TYPE;
 		NFC_ChangMode(&nand_info);
 	}
+
+	PHY_ChangeMode(1);
 
 	if(SUPPORT_READ_RETRY)
 	{
