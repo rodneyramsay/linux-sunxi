@@ -72,7 +72,7 @@ static u32 usb_connect = 0;
 static u32 is_controller_alive = 0;
 static u8 is_udc_enable = 0; /* is udc enable by gadget? */
 
-#ifdef CONFIG_USB_SW_SUNXI_USB0_OTG
+#if CONFIG_USB_SW_SUNXI_USB0_OTG || CONFIG_USB_SW_SUNXI_UDC0
 static struct platform_device *g_udc_pdev = NULL;
 #endif
 
