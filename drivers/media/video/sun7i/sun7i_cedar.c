@@ -74,7 +74,7 @@ int g_dev_minor = CEDARDEV_MINOR;
 module_param(g_dev_major, int, S_IRUGO);//S_IRUGO represent that g_dev_major can be read,but canot be write
 module_param(g_dev_minor, int, S_IRUGO);
 
-#define VE_IRQ_NO AW_IRQ_VE
+#define VE_IRQ_NO SW_INT_IRQNO_VE
 
 struct clk *ve_moduleclk = NULL;
 struct clk *ve_pll4clk = NULL;
@@ -689,8 +689,8 @@ long cedardev_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 	case IOCTL_GET_ENV_INFO:
 	{
 		struct cedarv_env_infomation env_info;
-		env_info.phymem_start = (unsigned int)phys_to_virt(SW_VE_MEM_BASE); // (0x4d000000);
-		env_info.phymem_total_size = SW_VE_MEM_SIZE; // 0x05000000;
+		env_info.phymem_start = (unsigned int)phys_to_virt(ve_start); // (0x4d000000);
+		env_info.phymem_total_size = ve_size; // 0x05000000;
 		env_info.address_macc = (unsigned int)cedar_devp->iomap_addrs.regs_macc;
 		if(copy_to_user((char *)arg, &env_info, sizeof(struct cedarv_env_infomation)))
 			return -EFAULT;
@@ -823,16 +823,12 @@ static int cedardev_mmap(struct file *filp, struct vm_area_struct *vma)
 #ifdef CONFIG_PM
 static int snd_sw_cedar_suspend(struct platform_device *pdev,pm_message_t state)
 {
-	pr_info("%s(%d): enter %s\n", __func__, __LINE__, (NORMAL_STANDBY == standby_type) ?
-		"normal standby" : "super standby");
 	disable_cedar_hw_clk();
 	return 0;
 }
 
 static int snd_sw_cedar_resume(struct platform_device *pdev)
 {
-	pr_info("%s(%d): resume from %s\n", __func__, __LINE__, (NORMAL_STANDBY == standby_type) ?
-		"normal standby" : "super standby");
 	if(cedar_devp->ref_count == 0)
 		return 0;
 	enable_cedar_hw_clk();
