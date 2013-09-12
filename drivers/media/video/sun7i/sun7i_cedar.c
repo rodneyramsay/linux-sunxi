@@ -802,7 +802,7 @@ static int cedardev_mmap(struct file *filp, struct vm_area_struct *vma)
 		vma->vm_flags |= VM_RESERVED | VM_IO;
 
 		/* Select uncached access. */
-		//vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
+		vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
 		if (remap_pfn_range(vma, vma->vm_start, temp_pfn,
 			vma->vm_end - vma->vm_start, vma->vm_page_prot))
 			return -EAGAIN;
