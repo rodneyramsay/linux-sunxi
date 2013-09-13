@@ -37,10 +37,7 @@ struct videobuf_dma_contig_memory {
 		BUG();							    \
 	}
 
-#if defined CONFIG_VIDEO_DECODER_SUN4I || \
-	defined CONFIG_VIDEO_DECODER_SUN4I_MODULE || \
-	defined CONFIG_VIDEO_DECODER_SUN5I || \
-	defined CONFIG_VIDEO_DECODER_SUN5I_MODULE
+#if IS_ENABLED(CONFIG_VIDEO_DECODER_SUNXI)
 #define RESERVE_VE_MEM 1
 extern unsigned long ve_start;
 extern unsigned long ve_size;
