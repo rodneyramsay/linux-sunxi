@@ -1,5 +1,5 @@
 /*
- * drivers/media/video/sun4i/sun4i_cedar.h
+ * drivers/media/video/sunxi/sunxi_cedar.h
  *
  * (C) Copyright 2007-2012
  * Allwinner Technology Co., Ltd. <www.allwinnertech.com>
@@ -29,7 +29,7 @@
 *						        	 (c) Copyright 2009-2012, ,HUANGXIN China
 *											 All Rights Reserved
 *
-* File    	: sun4i_cedar.h
+* File    	: sunxi_cedar.h
 * By      	: HUANGXIN
 * Func		:
 * Version	: v1.0
