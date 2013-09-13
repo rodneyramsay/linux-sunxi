@@ -24,8 +24,8 @@
 #include "ebios_lcdc_tve.h"
 #include "drv_disp_i.h" /* For DISP_XXXXXX status codes */
 
-#define DE_INF __inf
-#define DE_WRN __wrn
+#define DE_INF // __inf
+#define DE_WRN // __wrn
 
 #define OSAL_IRQ_RETURN IRQ_HANDLED
 
