@@ -59,6 +59,9 @@
 
 //#define CEDAR_DEBUG
 
+#define VE_CLK_HIGH_WATER  (380)//380MHz (don't exceed Mali max rate)
+#define VE_CLK_LOW_WATER   (100) //100MHz
+
 int g_dev_major = CEDARDEV_MAJOR;
 int g_dev_minor = CEDARDEV_MINOR;
 module_param(g_dev_major, int, S_IRUGO);//S_IRUGO represent that g_dev_major can be read,but canot be write
@@ -586,8 +589,9 @@ long cedardev_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 		break;
 
 		case IOCTL_SET_VE_FREQ:
-			if (!sunxi_is_sun5i()) {
+			{
 				int arg_rate = (int)arg;
+#if 0
 				if(arg_rate >= 320){
 					clk_set_rate(ve_moduleclk, pll4clk_rate/3);//ve_moduleclk rate is 320khz
 				}else if((arg_rate >= 240) && (arg_rate < 320)){
@@ -597,7 +601,24 @@ long cedardev_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 				}else{
 					printk("IOCTL_SET_VE_FREQ set ve freq error,%s,%d\n", __func__, __LINE__);
 				}
+#else
+				if(arg_rate >= VE_CLK_LOW_WATER &&
+				   arg_rate <= VE_CLK_HIGH_WATER &&
+				   clk_get_rate(ve_moduleclk)/1000000 != arg_rate) {
+					if(!clk_set_rate(ve_pll4clk, arg_rate*1000000)) {
+						pll4clk_rate = clk_get_rate(ve_pll4clk);
+						if(clk_set_rate(ve_moduleclk, pll4clk_rate)) {
+							printk("set ve clock failed\n");
+						}
+
+					} else {
+						printk("set pll4 clock failed\n");
+					}
+				}
+				ret = clk_get_rate(ve_moduleclk);
+				printk("cedar ioctl: request freq %d, pll4 clk %lu, ve clk %ld\n", arg_rate, clk_get_rate(ve_pll4clk), ret);
 			}
+#endif
 			break;
         case IOCTL_GETVALUE_AVS2:
 			/* Return AVS1 counter value */
@@ -793,9 +814,30 @@ long cedardev_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 			}
 			flush_clean_user_range(cache_range.start, cache_range.end);
         }
-        break;
-        default:
-        break;
+
+		case IOCTL_READ_REG:
+		{
+			struct cedarv_regop reg_para;
+			if(copy_from_user(&reg_para, (void __user*)arg, sizeof(struct cedarv_regop)))
+				return -EFAULT;
+			return readl(reg_para.addr);
+		}
+
+		case IOCTL_WRITE_REG:
+		{
+			struct cedarv_regop reg_para;
+			if(copy_from_user(&reg_para, (void __user*)arg, sizeof(struct cedarv_regop)))
+				return -EFAULT;
+			writel(reg_para.value, reg_para.addr);
+			break;
+		}
+
+		case IOCTL_SET_REFCOUNT:
+			cedar_devp->ref_count = (int)arg;
+			break;
+
+		default:
+			break;
     }
     return ret;
 }
@@ -1012,7 +1054,8 @@ static int __init cedardev_init(void)
 		return -EFAULT;
 	}
 	/*default the ve freq to 160M by lys 2011-12-23 15:25:34*/
-	clk_set_rate(ve_moduleclk, pll4clk_rate/6);
+	clk_set_rate(ve_moduleclk, pll4clk_rate);
+	printk("cedar init: pll4 clk %lu, ve clk %ld\n", clk_get_rate(ve_pll4clk), clk_get_rate(ve_moduleclk));
 	/*geting dram clk for ve!*/
 	dram_veclk = clk_get(NULL, "sdram_ve");
 	hosc_clk = clk_get(NULL,"hosc");
