@@ -4,6 +4,7 @@
 
 obj-y = clock/
 obj-y += dma/
+obj-y += rf/
 obj-$(CONFIG_CPU_FREQ)			+= cpu-freq/
 obj-$(CONFIG_PM) += pm/
 obj-$(CONFIG_AW_TIME_DELAY)	+= delay.o
