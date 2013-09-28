@@ -58,13 +58,19 @@
 
 extern __hdle NAND_RequestDMA(__u32 dmatype);
 extern __s32 NAND_ReleaseDMA(__hdle hDma);
-extern void NAND_Config_Start_DMA(__u8 rw, dma_addr_t buff_addr, __u32 len);
+extern __s32 NAND_QueryDmaStat(__hdle hDma);
+extern __s32 NAND_SettingDMA(__hdle hDMA, void * pArg);
+extern __s32 NAND_StartDMA(__u8 rw,__hdle hDMA, __u32 saddr, __u32 daddr, __u32 bytes);
+extern __s32 NAND_GetPin(void);
+extern __s32 NAND_ReleasePin(void);
+extern __u32 NAND_GetBoardVersion(void);
 extern __s32 NAND_WaitDmaFinish(void);
+extern __s32 NAND_DMAEqueueBuf(__hdle hDma,  __u32 buff_addr, __u32 len);
 extern void NAND_ClearRbInt(void);
 extern void NAND_EnRbInt(void);
 
 extern void NAND_RbInterrupt(void);
 extern __s32 NAND_WaitRbReady(void);
 
-
 #endif	/* _NFC_I_H_ */
+

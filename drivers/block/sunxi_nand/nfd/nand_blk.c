@@ -1056,7 +1056,13 @@ void set_nand_pio(void)
 
 			//iounmap(gpio_base);
 	#else
+			printk("[NAND] nand gpio_request\n");
 			nand_handle = gpio_request_ex("nand_para",NULL);
+			if(nand_handle == 0)
+			{
+				printk("get nand pio ok \n");
+			}
+
 	#endif
 }
 
@@ -1105,6 +1111,7 @@ __u32 get_cmu_clk(void)
 	factor_m = ((reg_val >> 0) & 0x3) + 1;
 
 	clock = 24 * factor_n * factor_k/div_p/factor_m;
+	printk("cmu_clk is %d \n", clock);
 
 	return clock;
 }
@@ -1150,6 +1157,10 @@ void set_nand_clock(__u32 nand_max_clock)
 	cfg |= (nand_clk_divid_ratio & 0xf) << 0;
 
 	*(volatile __u32 *)(0xf1c20000 + 0x80) = cfg;
+
+	printk("nand clk init end \n");
+	printk("offset 0xc:  0x%x \n", *(volatile __u32 *)(0xf1c20000 + 0x60));
+	printk("offset 0x14:  0x%x \n", *(volatile __u32 *)(0xf1c20000 + 0x80));
 }
 
 
@@ -1164,6 +1175,9 @@ void release_nand_clock(void)
 	cfg = *(volatile __u32 *)(ccmu_base + 0x14);
 	cfg &= (~(0x1<<15));
 	*(volatile __u32 *)(ccmu_base + 0x14) = cfg;
+
+	printk("[NAND]ccmu_base+0x14:  0x%x \n", *(volatile __u32 *)(ccmu_base + 0x14));
+
 }
 
 void active_nand_clock(void)
@@ -1177,6 +1191,9 @@ void active_nand_clock(void)
 	cfg = *(volatile __u32 *)(ccmu_base + 0x14);
 	cfg |= (0x1<<15);
 	*(volatile __u32 *)(ccmu_base + 0x14) = cfg;
+
+	printk("[NAND]ccmu_base+0x14:  0x%x \n", *(volatile __u32 *)(ccmu_base + 0x14));
+
 }
 #else
 
@@ -1288,6 +1305,11 @@ static int __init init_blklayer(void)
 	    printk("nand interrupte register error\n");
 	    return -EAGAIN;
 	}
+	else
+	{
+	    printk("nand interrupte register ok\n");
+	}
+
 
 	ret = PHY_Init();
 	if (ret) {
@@ -1428,7 +1450,11 @@ static int nand_resume(struct platform_device *plat_dev)
 
 static int nand_probe(struct platform_device *plat_dev)
 {
+	pr_info("benn: nand probe enter\n");
+	dbg_inf("nand_probe\n");
+
 	return 0;
+
 }
 
 static int nand_remove(struct platform_device *plat_dev)
@@ -1478,6 +1504,8 @@ static int __init nand_init(void)
         return 0;
     }
 
+
+	printk("[NAND]nand driver, init.\n");
 
 	ret = init_blklayer();
 	if(ret)
