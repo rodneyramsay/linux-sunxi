@@ -186,10 +186,10 @@ static int __init reserve_fb_param(char *s)
 early_param("sunxi_fb_mem_reserve", reserve_fb_param);
 #endif
 
-#if defined CONFIG_SUN4I_G2D || defined CONFIG_SUN4I_G2D_MODULE
+#if IS_ENABLED(CONFIG_SUNXI_G2D)
 /* The G2D block is used by:
  *
- * - the G2D engine, drivers/char/sun4i_g2d
+ * - the G2D engine, drivers/char/sunxi_g2d
  */
 
 unsigned long g2d_start;
@@ -207,13 +207,11 @@ static int __init reserve_g2d_param(char *s)
 early_param("sunxi_g2d_mem_reserve", reserve_g2d_param);
 #endif
 
-#if defined CONFIG_VIDEO_DECODER_SUN4I || \
-	defined CONFIG_VIDEO_DECODER_SUN4I_MODULE || \
-	defined CONFIG_VIDEO_DECODER_SUN5I || \
-	defined CONFIG_VIDEO_DECODER_SUN5I_MODULE
+#if defined CONFIG_VIDEO_DECODER_SUNXI || \
+	defined CONFIG_VIDEO_DECODER_SUNXI_MODULE
 /* The VE block is used by:
  *
- * - the Cedar video engine, drivers/media/video/sun4i
+ * - the Cedar video engine, drivers/media/video/sunxi
  */
 
 #define RESERVE_VE_MEM 1
@@ -239,8 +237,8 @@ static void reserve_sys(void)
 	pr_reserve_info("SYS ", SYS_CONFIG_MEMBASE, SYS_CONFIG_MEMSIZE);
 }
 
-#if defined RESERVE_VE_MEM || defined CONFIG_SUN4I_G2D || \
-	defined CONFIG_SUN4I_G2D_MODULE || defined CONFIG_FB_SUNXI_RESERVED_MEM
+#if defined RESERVE_VE_MEM || defined CONFIG_FB_SUNXI_RESERVED_MEM || \
+	IS_ENABLED(CONFIG_SUNXI_G2D)
 static void reserve_mem(unsigned long *start, unsigned long *size,
 			const char *desc)
 {
@@ -280,7 +278,7 @@ static void __init sw_core_reserve(void)
 #ifdef RESERVE_VE_MEM
 	reserve_mem(&ve_start, &ve_size, "VE  ");
 #endif
-#if defined CONFIG_SUN4I_G2D || defined CONFIG_SUN4I_G2D_MODULE
+#if IS_ENABLED(CONFIG_SUNXI_G2D)
 	reserve_mem(&g2d_start, &g2d_size, "G2D ");
 #endif
 #ifdef CONFIG_FB_SUNXI_RESERVED_MEM
@@ -420,9 +418,14 @@ static void sun4i_restart(char mode, const char *cmd)
 	/* use watch-dog to reset system */
 	#define WATCH_DOG_CTRL_REG  (SW_VA_TIMERC_IO_BASE + 0x0090)
 	#define WATCH_DOG_MODE_REG  (SW_VA_TIMERC_IO_BASE + 0x0094)
-	writel(3, WATCH_DOG_MODE_REG);
-	writel(((0xA57 << 1) | (1 << 0)), WATCH_DOG_CTRL_REG);
-	while(1);
+
+	*(volatile unsigned int *)WATCH_DOG_MODE_REG = 0;
+	__delay(100000);
+	*(volatile unsigned int *)WATCH_DOG_MODE_REG |= 2;
+	while(1) {
+		__delay(100);
+		*(volatile unsigned int *)WATCH_DOG_MODE_REG |= 1;
+	}
 }
 
 static void __init sw_timer_init(void)
