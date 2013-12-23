@@ -75,4 +75,13 @@ config LIRC_ZILOG
 	help
 	  Driver for the Zilog/Hauppauge IR Transmitter, found on
 	  PVR-150/500, HVR-1200/1250/1700/1800, HD-PVR and other cards
+
+config LIRC_GPIO
+	tristate "LIRC GPIO receiver/transmitter"
+	depends on LIRC && GPIOLIB
+	help
+	  Driver for GPIOLIB enabled gpio chip. Module setup for and tested
+	  on Allwinner A10 Gpio SOC.
+	  change/redefine LIRC_GPIO_ID_STRING to the correct gpiochip label
+
 endif
