@@ -113,6 +113,7 @@ fw-shipped-$(CONFIG_BCMDHD) += ap6210/bcm20710a1.hcd ap6210/fw_bcm40181a2.bin \
 			       ap6210/fw_bcm40181a2_apsta.bin \
 			       ap6210/fw_bcm40181a2_p2p.bin \
 			       ap6210/nvram_ap6210.txt
+fw-shipped-$(CONFIG_RTXX7X_SW) += rtxx7x/RT2870STA.dat rtxx7x/RT2870STACard.dat
 ifdef CONFIG_FIRMWARE_IN_KERNEL
 fw-shipped-$(CONFIG_USB_SERIAL_KEYSPAN_MPR) += keyspan/mpr.fw
 fw-shipped-$(CONFIG_USB_SERIAL_KEYSPAN_USA18X) += keyspan/usa18x.fw
