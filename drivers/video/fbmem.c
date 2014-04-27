@@ -505,6 +505,12 @@ static int fb_show_logo_line(struct fb_info *info, int rotate,
 			fb_rotate_logo(info, logo_rotate, &image, rotate);
 	}
 
+#ifdef CONFIG_FB_LOGO_CENTERED
+	/* Center the logo in the screen */
+	image.dx = (info->var.xres - image.width * n) / 2;
+	image.dy = (info->var.yres - image.height) / 2;
+#endif
+
 	fb_do_show_logo(info, &image, rotate, n);
 
 	kfree(palette);
@@ -658,9 +664,16 @@ int fb_prepare_logo(struct fb_info *info, int rotate)
 int fb_show_logo(struct fb_info *info, int rotate)
 {
 	int y;
+	unsigned int fb_logo_number = num_online_cpus();
+
+#ifdef CONFIG_NR_FB_LOGO
+	if(CONFIG_NR_FB_LOGO) {
+		fb_logo_number=CONFIG_NR_FB_LOGO;
+	}
+#endif
 
 	y = fb_show_logo_line(info, rotate, fb_logo.logo, 0,
-			      num_online_cpus());
+			      fb_logo_number);
 	y = fb_show_extra_logos(info, y, rotate);
 
 	return y;

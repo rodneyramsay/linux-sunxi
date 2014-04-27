@@ -15,6 +15,19 @@ config FB_LOGO_EXTRA
 	depends on FB=y
 	default y if SPU_BASE
 
+config FB_LOGO_CENTERED
+	bool "Show the logo centered in the screen"
+	depends on FB=y
+	default y if LOGO_CUBIAN_CLUT224
+
+config NR_FB_LOGO
+	int "Logo count shall display in the screen"
+	depends on FB=y
+	default 0
+	help
+	  This is the amount of logo shall display in the screen,
+	  the default value is zero which means automatically sets to the online CPU numbers.
+
 config LOGO_LINUX_MONO
 	bool "Standard black and white Linux logo"
 	default y
