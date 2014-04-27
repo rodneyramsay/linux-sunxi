@@ -82,4 +82,9 @@ config LOGO_M32R_CLUT224
 	depends on M32R
 	default y
 
+config LOGO_CUBIAN_CLUT224
+	bool "224-color Cubian Linux logo"
+	depends on ARCH_SUN4I || ARCH_SUN7I
+	default y
+
 endif # LOGO
