@@ -303,9 +303,14 @@ int codec_wr_control(u32 reg, u32 mask, u32 shift, u32 val)
 	return 0;
 }
 
-int codec_rd_control(u32 reg, u32 bit, u32 *val)
+int codec_rd_control(u32 reg, u32 mask, u32 shift, u32 *val)
 {
-	return 0;
+   u32 reg_val = codec_rdreg(reg);
+
+   mask = mask << shift;
+   reg_val &= mask;
+   *val = reg_val >> shift;
+   return 0;
 }
 
 /**
@@ -383,29 +388,82 @@ static int codec_play_open(struct snd_pcm_substream *substream)
 
 static int codec_capture_open(void)
 {
-	 //enable mic1 pa
-	 codec_wr_control(SUNXI_ADC_ACTL, 0x1, MIC1_EN, 0x1);
-	 //mic1 gain 32dB
-	 codec_wr_control(SUNXI_ADC_ACTL, 0x3,25,0x1);
-	  //enable VMIC
-	 codec_wr_control(SUNXI_ADC_ACTL, 0x1, VMIC_EN, 0x1);
+	
+	u32 mux_val;
 
-	if (sunxi_is_sun7i()) {
-		/* boost up record effect */
-		codec_wr_control(SUNXI_DAC_TUNE, 0x3, 8, 0x3);
+	//set RX FIFO mode
+	codec_wr_control(SUNXI_ADC_FIFOC, 0x1, RX_FIFO_MODE, 0x1);
+	//flush RX FIFO
+	codec_wr_control(SUNXI_ADC_FIFOC, 0x1, ADC_FIFO_FLUSH, 0x1);
+	//set RX FIFO rec drq level
+	codec_wr_control(SUNXI_ADC_FIFOC, 0xf, RX_TRI_LEVEL, 0x7);
+
+	codec_rd_control(SUNXI_ADC_ACTL, 0x7,  ADC_ACTRL_ADCIS, &mux_val);
+
+	//
+	// ADC Select MIC
+	//
+	if((mux_val >= 0x2) && (mux_val <= 0x5)) {
+	
+		//enable mic1 pa
+		codec_wr_control(SUNXI_ADC_ACTL, 0x1, MIC1_EN, 0x1);
+		//mic1 gain 32dB
+		codec_wr_control(SUNXI_ADC_ACTL, 0x3,25,0x1);
+		//enable VMIC
+		codec_wr_control(SUNXI_ADC_ACTL, 0x1, VMIC_EN, 0x1);
+		//enable adc1 analog
+		codec_wr_control(SUNXI_ADC_ACTL, 0x3,  ADC_EN, 0x3);
+
+		if (sunxi_is_sun7i()) {
+			/* boost up record effect */
+			codec_wr_control(SUNXI_DAC_TUNE, 0x3, 8, 0x3);
+		}
+
 	}
+	//
+	// ADC Select LINEIN
+	//
+	else if((mux_val == 0x0) || (mux_val == 0x7)) {
 
-	 //enable adc digital
-	 codec_wr_control(SUNXI_ADC_FIFOC, 0x1,ADC_DIG_EN, 0x1);
-	 //set RX FIFO mode
-	 codec_wr_control(SUNXI_ADC_FIFOC, 0x1, RX_FIFO_MODE, 0x1);
-	 //flush RX FIFO
-	 codec_wr_control(SUNXI_ADC_FIFOC, 0x1, ADC_FIFO_FLUSH, 0x1);
-	 //set RX FIFO rec drq level
-	 codec_wr_control(SUNXI_ADC_FIFOC, 0xf, RX_TRI_LEVEL, 0x7);
-	 //enable adc1 analog
-	 codec_wr_control(SUNXI_ADC_ACTL, 0x3,  ADC_EN, 0x3);
-	 return 0;
+
+		// Enable ADC Left-Right
+		codec_wr_control(SUNXI_ADC_ACTL, 0x1,  ADC_ACTRL_ADCREN, 0x1);
+		codec_wr_control(SUNXI_ADC_ACTL, 0x1,  ADC_ACTRL_ADCLEN, 0x1);
+
+		// Disable MIC pre amps
+		codec_wr_control(SUNXI_ADC_ACTL, 0x1,  ADC_ACTRL_PREG1EN, 0x0);
+		codec_wr_control(SUNXI_ADC_ACTL, 0x1,  ADC_ACTRL_PREG2EN, 0x0);
+
+		// Disable MIC voltage
+		codec_wr_control(SUNXI_ADC_ACTL, 0x1,  ADC_ACTRL_VMICEN, 0x0);
+
+		// Unity gain ADC control
+		codec_wr_control(SUNXI_ADC_ACTL, 0x7,  ADC_ACTRL_ADCG, 0x3);
+
+		// Input mux LINEINL LINEINR
+		codec_wr_control(SUNXI_ADC_ACTL, 0x7,  ADC_ACTRL_ADCIS, 0x0);
+
+		// Not differential.
+		codec_wr_control(SUNXI_ADC_ACTL, 0x1,  ADC_ACTRL_LNDRF, 0x0);
+
+		// Uninty gain line in pre amp
+		codec_wr_control(SUNXI_ADC_ACTL, 0x7,  ADC_ACTRL_LNPREG, 0x3);
+
+		//enable adc digital
+		codec_wr_control(SUNXI_ADC_FIFOC, 0x1,ADC_DIG_EN, 0x1);
+
+		// Enable output path
+		codec_wr_control(SUNXI_ADC_ACTL, 0x1,  ADC_ACTRL_PA_EN, 0x1);
+
+		// Enable output path
+		codec_wr_control(SUNXI_DAC_ACTL, 0x1, DAC_ACTRL_MIXEN, 0x1);
+		codec_wr_control(SUNXI_DAC_ACTL, 0x1, DAC_ACTRL_LLNS, 0x1);
+		codec_wr_control(SUNXI_DAC_ACTL, 0x1, DAC_ACTRL_RLNS, 0x1);
+		codec_wr_control(SUNXI_DAC_ACTL, 0x1, DAC_ACTRL_MIXPAS, 0x1);
+		codec_wr_control(SUNXI_DAC_ACTL, 0x1, DAC_ACTRL_PAMUTE, 0x1);
+	}
+	 
+	return 0;
 }
 
 static int codec_play_start(void)
@@ -446,25 +504,24 @@ static int codec_capture_start(void)
 
 static int codec_capture_stop(void)
 {
-	//disable adc drq
-	codec_wr_control(SUNXI_ADC_FIFOC ,0x1, ADC_DRQ, 0x0);
-	//enable mic1 pa
-	codec_wr_control(SUNXI_ADC_ACTL, 0x1, MIC1_EN, 0x0);
+	u32 mux_val;
 
-	//enable VMIC
-	codec_wr_control(SUNXI_ADC_ACTL, 0x1, VMIC_EN, 0x0);
+	codec_rd_control(SUNXI_ADC_ACTL, 0x7,  ADC_ACTRL_ADCIS, &mux_val);
 
-	if (sunxi_is_sun7i())
-		codec_wr_control(SUNXI_DAC_TUNE, 0x3, 8, 0x0);
+         codec_wr_control(SUNXI_DAC_ACTL, 0x1, DAC_ACTRL_PAMUTE, 0x0);
+   //	 codec_wr_control(SUNXI_DAC_ACTL, 0x1, DAC_ACTRL_MIXPAS, 0x0);
+         codec_wr_control(SUNXI_DAC_ACTL, 0x1, DAC_ACTRL_LLNS, 0x0);
+   	 codec_wr_control(SUNXI_DAC_ACTL, 0x1, DAC_ACTRL_RLNS, 0x0);
+   //	 codec_wr_control(SUNXI_DAC_ACTL, 0x1, DAC_ACTRL_MIXEN, 0x0);
 
-	//enable adc digital
-	codec_wr_control(SUNXI_ADC_FIFOC, 0x1,ADC_DIG_EN, 0x0);
-	//set RX FIFO mode
-	codec_wr_control(SUNXI_ADC_FIFOC, 0x1, RX_FIFO_MODE, 0x0);
-	//flush RX FIFO
-	codec_wr_control(SUNXI_ADC_FIFOC, 0x1, ADC_FIFO_FLUSH, 0x0);
-	//enable adc1 analog
-	codec_wr_control(SUNXI_ADC_ACTL, 0x3,  ADC_EN, 0x0);
+	 //	 codec_wr_control(SUNXI_ADC_ACTL, 0x1,  ADC_ACTRL_PA_EN, 0x0);
+	 codec_wr_control(SUNXI_ADC_ACTL, 0x7,  ADC_ACTRL_LNPREG, 0x0);
+	 codec_wr_control(SUNXI_ADC_ACTL, 0x7,  ADC_ACTRL_ADCG, 0x0);
+	 codec_wr_control(SUNXI_ADC_ACTL, 0x1,  ADC_ACTRL_VMICEN, 0x0);
+	 codec_wr_control(SUNXI_ADC_ACTL, 0x1,  ADC_ACTRL_ADCLEN, 0x0);
+	 codec_wr_control(SUNXI_ADC_ACTL, 0x1,  ADC_ACTRL_ADCREN, 0x0);
+	 codec_wr_control(SUNXI_ADC_FIFOC, 0x1,ADC_DIG_EN, 0x0);
+
 	return 0;
 }
 

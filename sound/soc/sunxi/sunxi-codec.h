@@ -93,6 +93,32 @@
 #define  PA_ENABLE                (4)
 #define  HP_DIRECT                (3)
 
+#define ADC_ACTRL_ADCREN          (31)
+#define ADC_ACTRL_ADCLEN          (30)
+#define ADC_ACTRL_PREG1EN         (29)
+#define ADC_ACTRL_PREG2EN         (28)
+#define ADC_ACTRL_VMICEN          (27)
+#define ADC_ACTRL_ADCG            (20)
+#define ADC_ACTRL_ADCIS           (17)
+#define ADC_ACTRL_LNDRF           (16)
+#define ADC_ACTRL_LNPREG          (13)
+#define ADC_ACTRL_LHPOUTN         (11)
+#define ADC_ACTRL_RHPOUTN         (10)
+#define ADC_ACTRL_DITHER          (8)
+#define ADC_ACTRL_DITHER_CLK_SEL  (6)
+#define ADC_ACTRL_PA_EN           (4)
+#define ADC_ACTRL_DDE             (3)
+#define ADC_ACTRL_COMPTEN         (2)
+#define ADC_ACTRL_PTDBS           (0)
+
+
+#define DAC_ACTRL_MIXEN           (29)
+#define DAC_ACTRL_LLNS            (19)
+#define DAC_ACTRL_RLNS            (18)
+#define DAC_ACTRL_MIXPAS          (7)
+#define DAC_ACTRL_PAMUTE          (6)
+
+
 enum m1_codec_config {
 	CMD_MIC_SEL =0,
 	CMD_ADC_SEL,
