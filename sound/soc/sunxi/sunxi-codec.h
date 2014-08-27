@@ -118,6 +118,9 @@
 #define DAC_ACTRL_MIXPAS          (7)
 #define DAC_ACTRL_PAMUTE          (6)
 
+#define MIC_CRT_PREG1             (29)
+#define MIC_CRT_PREG2             (26)
+
 
 enum m1_codec_config {
 	CMD_MIC_SEL =0,
